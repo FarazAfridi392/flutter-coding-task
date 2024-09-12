@@ -1,4 +1,5 @@
 import 'package:coding_task/models/task_model.dart';
+import 'package:coding_task/providers/quotes_provider.dart';
 import 'package:coding_task/providers/tasks_provider.dart';
 import 'package:coding_task/screens/home/widgets/drawer_widget.dart';
 import 'package:coding_task/screens/home/widgets/tasks_dialog.dart';
@@ -24,6 +25,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final searchResults =
         ref.watch(taskProvider.notifier).searchTasks(_searchController.text);
 
+    final quote = ref.watch(quoteProvider);
     // Group tasks by category
     final groupedTasks = <String, List<Task>>{};
     for (var task in searchResults) {
@@ -58,6 +60,48 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               onChanged: (value) {
                 setState(() {});
               },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: quote.when(
+              data: (quote) => Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.inversePrimary,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                      offset: Offset(0, 4), // changes position of shadow
+                    ),
+                  ],
+                ),
+                child: Text(
+                  '"$quote"',
+                  style: TextStyle(
+                    fontStyle: FontStyle.italic,
+                    fontSize: 16,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              loading: () => Center(
+                child: CircularProgressIndicator(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              error: (error, stack) => Center(
+                child: Text(
+                  'Failed to load quote: $error',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+              ),
             ),
           ),
           Expanded(
